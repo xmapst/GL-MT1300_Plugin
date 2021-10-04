@@ -1,0 +1,156 @@
+# Fork from P3TERX's GitHub Actions, modified by Ivan Liao on July 29, 2020
+#
+# Copyright (c) 2019-2020 P3TERX <https://p3terx.com>
+#
+# This is free software, licensed under the MIT License.
+# See /LICENSE for more information.
+#
+# https://github.com/P3TERX/Actions-OpenWrt
+# Description: Build OpenWrt using GitHub Actions
+#
+
+name: Build MT1300 Plugin from GL-iNet
+
+on:
+  push: 
+    branches:
+      - main
+  schedule:
+    - cron: 0 18 * * *
+#  watch:
+#    types: started
+
+env:
+  REPO_OP: https://github.com/gl-inet/openwrt.git
+  REPO_LEDE: https://github.com/coolsnowwolf/lede
+  REPO_BRANCH: openwrt-19.07.7
+  FEEDS_CONF: feeds.conf.default
+  PATCH_PATH: patch
+  CONFIG_FILE: .config
+  CUSTOM_FEEDS: scripts/customize-feeds.sh
+  #SSH_ACTIONS: false
+  UPLOAD_BIN_DIR: true
+  UPLOAD_FIRMWARE: true
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    if: github.event.repository.owner.id == github.event.sender.id
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Initialization environment
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo -E apt-get -qq update
+        sudo -E apt-get -qq install $(curl -fsSL git.io/depends-ubuntu-1804)
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        sudo timedatectl set-timezone "$TZ"
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
+
+    - name: Clone source code
+      working-directory: /workdir
+      run: |
+        df -hT $PWD
+        git clone $REPO_OP -b $REPO_BRANCH openwrt
+        git clone $REPO_LEDE -b master lede
+        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+        ln -sf /workdir/lede $GITHUB_WORKSPACE/lede
+        
+    - name: Update and install LEDE feeds
+      run: cd /workdir/lede && ./scripts/feeds update -a && ./scripts/feeds install -a
+        
+    - name: Update and install OpenWrt feeds
+      run: cd /workdir/openwrt && ./scripts/feeds update -a && ./scripts/feeds install -a
+  
+    - name: Load custom feeds
+      run: |
+        chmod +x $CUSTOM_FEEDS
+        cd openwrt
+        $GITHUB_WORKSPACE/$CUSTOM_FEEDS
+        
+    - name: Fix compile issue
+      run: |
+        cd /workdir/openwrt/staging_dir/host/bin
+        ln -s /usr/bin/upx upx
+        ln -s /usr/bin/upx-ucl upx-ucl
+        ls -l upx*
+        rm -rf /workdir/openwrt/feeds/packages/lang/golang
+        cp -r /workdir/lede/feeds/packages/lang/golang /workdir/openwrt/feeds/packages/lang/golang
+        
+    - name: Load custom configuration
+      run: |
+        [ -e files ] && mv files openwrt/files
+        [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
+
+    - name: Download package
+      id: package
+      run: |
+        cd openwrt
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Compile the firmware
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      id: compile
+      run: |
+        cd openwrt
+        echo -e "$(nproc) thread compile"
+        make -j$(nproc) || make -j1 || make -j1 V=s
+        echo "::set-output name=status::success"
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        [ -s DEVICE_NAME ] && echo "::set-env name=DEVICE_NAME::_$(cat DEVICE_NAME)"
+        echo "::set-env name=FILE_DATE::_$(date +"%Y%m%d%H%M")"
+
+    - name: Check space usage
+      if: (!cancelled())
+      run: df -hT
+
+    - name: Upload packages directory
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      uses: actions/upload-artifact@main
+      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
+      with:
+        name: OpenWrt_packages${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: openwrt/bin/packages/mipsel_24kc
+    
+    - name: Organize plugin
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      run: |
+        if [ -e "$GITHUB_WORKSPACE/scripts/create-plugin-package.sh" ]
+        then
+            chmod +x $GITHUB_WORKSPACE/scripts/create-plugin-package.sh
+            $GITHUB_WORKSPACE/scripts/create-plugin-package.sh
+        fi
+        
+    - name: Organize files
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      id: organize
+      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      run: |
+        cd openwrt/bin/targets/*/*/*
+        echo "::set-env name=FIRMWARE::$PWD"
+        echo "::set-output name=status::success"
+        
+    - name: Upload plugin directory
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      uses: actions/upload-artifact@main
+      if: steps.organize.outputs.status == 'success' && !cancelled()
+      with:
+        name: OpenWrt_plugin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
+        path: ${{ env.FIRMWARE }}
