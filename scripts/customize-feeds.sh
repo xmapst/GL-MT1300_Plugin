@@ -59,8 +59,8 @@ cp -r /workdir/lede/package/lean/luci-app-adbyby-plus ./
 
 
 # Add openclash
-cd /workdir/openwrt/package/community
-git clone --depth=1 -b master https://github.com/vernesong/OpenClash
+#cd /workdir/openwrt/package/community
+#git clone --depth=1 -b master https://github.com/vernesong/OpenClash
 #ARCH=mipsle-softfloat
 #cd /workdir/openwrt
 #mkdir -p files/etc/openclash/core

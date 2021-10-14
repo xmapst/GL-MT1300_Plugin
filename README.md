@@ -4,7 +4,7 @@
 
 ## 基于GL源码编译插件
 
-使用19.07.07分支编译，包含插件 passwall，ssr plus, openclash, frpc, nps, unblockneteasemusic
+使用19.07.07分支编译，包含插件 passwall，ssr plus, frpc, nps, unblockneteasemusic
 
 - 空间不够可参考openwrt扩容overlay
 - opkg update && opkg install block-mount luci ttyd luci-app-ttyd luci-compat luci-lib-ipkg wget htop
