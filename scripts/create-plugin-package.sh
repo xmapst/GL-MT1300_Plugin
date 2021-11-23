@@ -3,7 +3,7 @@ rm -fr *
 mkdir plugin
 
 # plugin list in ../../../packages/mipsel_24kc
-pkglist="base/frpc_*.ipk base/luci-app-frpc_*.ipk base/npc_*.ipk base/luci-app-nps_*.ipk base/UnblockNeteaseMusic_*.ipk base/luci-app-unblockneteasemusic_*.ipk base/shadowsocksr-libev-*.ipk base/pdnsd-alt_*.ipk base/chinadns-ng_*.ipk base/microsocks_*.ipk base/dns2socks_*.ipk base/simple-obfs*.ipk base/tcping_*.ipk base/v2ray*.ipk base/xray*.ipk base/trojan*.ipk base/ipt2socks_*.ipk base/redsocks2_*.ipk base/luci-app-passwall*.ipk base/luci-app-ssr-plus*.ipk luci/luci-compat_*.ipk base/xray-core_*.ipk gli_pub/shadowsocks-libev-ss-*.ipk base/shadowsocksr-libev-ssr-*.ipk"
+pkglist="base/frpc_*.ipk base/luci-app-frpc_*.ipk base/npc_*.ipk base/luci-app-nps_*.ipk base/shadowsocksr-libev-*.ipk base/pdnsd-alt_*.ipk base/chinadns-ng_*.ipk base/microsocks_*.ipk base/dns2socks_*.ipk base/simple-obfs*.ipk base/tcping_*.ipk base/v2ray*.ipk base/xray*.ipk base/trojan*.ipk base/ipt2socks_*.ipk base/redsocks2_*.ipk base/luci-app-passwall*.ipk base/luci-app-ssr-plus*.ipk luci/luci-compat_*.ipk base/xray-core_*.ipk gli_pub/shadowsocks-libev-ss-*.ipk base/shadowsocksr-libev-ssr-*.ipk base/UnblockNeteaseMusic-Go_*.ipk base/luci-app-unblockmusic*.ipk"
 
 for pkg in $pkglist
 do
@@ -102,12 +102,12 @@ EOF
 
 chmod +x ./plugin/install-nps.sh
 
-echo "Creating installation script for unblockneteasemusic"
-cat << EOF > ./plugin/install-unblockneteasemusic.sh
+echo "Creating installation script for NeteaseMusic plugin"
+cat << EOF > ./plugin/install-neteaseMusic.sh
 opkg update
 opkg install luci ttyd luci-app-ttyd luci-compat luci-lib-ipkg wget htop
-opkg install ./UnblockNeteaseMusic_*.ipk
-opkg install ./luci-app-unblockneteasemusic_*.ipk
+opkg install ./UnblockNeteaseMusic-Go_*.ipk
+opkg install ./luci-app-unblockmusic_*.ipk
+opkg install ./luci-i18n-unblockmusic-zh-cn_*.ipk
 EOF
-
-chmod +x ./plugin/install-unblockneteasemusic.sh
+chmod +x ./plugin/install-neteaseMusic.sh

@@ -40,14 +40,26 @@ cd /workdir/openwrt/package/community
 # Add Lienol's Packages
 git clone --depth=1 https://github.com/Lienol/openwrt-package
 
+# Add Serverchan plugin
+git clone --depth=1 https://github.com/tty228/luci-app-serverchan
+
+# Add AutoPowerOff plugin
+git clone --depth=1 https://github.com/sirpdboy/luci-app-autotimeset
+# set plugin file mode 755
+find ./luci-app-autotimeset -type d | xargs chmod 755
+find ./luci-app-autotimeset -type f | xargs chmod 755
+
 # Add luci-app-passwall
 git clone --depth=1 https://github.com/xiaorouji/openwrt-passwall
 
 # Add gotop
 svn co https://github.com/project-openwrt/openwrt/trunk/package/ctcgfw/gotop
 
-# Add luci-app-unblockneteasemusic
-git clone --depth=1 https://github.com/cnsilvan/luci-app-unblockneteasemusic
+# Add NeteaseMusic plugin
+cp -r /workdir/lede/package/lean/UnblockNeteaseMusic /workdir/openwrt/package/lean/
+cp -r /workdir/lede/package/lean/UnblockNeteaseMusic-Go /workdir/openwrt/package/lean/
+cp -r /workdir/lede/package/lean/luci-app-unblockmusic /workdir/openwrt/package/lean/
+ln -s /workdir/openwrt/package/lean/luci-app-unblockmusic/po/zh-cn /workdir/openwrt/package/lean/luci-app-unblockmusic/po/zh_Hans
 
 # Add smartdns
 svn co https://github.com/pymumu/smartdns/trunk/package/openwrt ../smartdns
