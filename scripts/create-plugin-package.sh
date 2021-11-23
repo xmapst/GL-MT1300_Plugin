@@ -108,6 +108,5 @@ opkg update
 opkg install luci ttyd luci-app-ttyd luci-compat luci-lib-ipkg wget htop
 opkg install ./UnblockNeteaseMusic-Go_*.ipk
 opkg install ./luci-app-unblockmusic_*.ipk
-opkg install ./luci-i18n-unblockmusic-zh-cn_*.ipk
 EOF
 chmod +x ./plugin/install-neteaseMusic.sh
