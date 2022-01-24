@@ -11,6 +11,6 @@
 
 ## 使用
 
-使用官方原版固件，然后在[下载](https://github.com/xmapst/GL-MT1300_Plugin/actions)这里基于GL官方源码编译的插件，然后上传到GL官方固件进行安装ssrp或者psw。
+使用官方原版固件，然后在[actions](https://github.com/xmapst/GL-MT1300_Plugin/actions)这里基于GL官方源码编译的插件，然后上传到GL官方固件进行安装ssrp或者psw。
 
 可以同时安装ssrp和passwall
