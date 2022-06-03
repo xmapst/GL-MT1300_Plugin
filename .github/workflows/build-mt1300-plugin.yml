@@ -12,6 +12,7 @@
 name: Build MT1300 Plugin from GL-iNet
 
 on:
+  workflow_dispatch:
   push: 
     branches:
       - main
@@ -23,7 +24,7 @@ on:
 env:
   REPO_OP: https://github.com/gl-inet/openwrt.git
   REPO_LEDE: https://github.com/coolsnowwolf/lede
-  REPO_BRANCH: openwrt-19.07.7
+  REPO_BRANCH: openwrt-19.07.8
   FEEDS_CONF: feeds.conf.default
   PATCH_PATH: patch
   CONFIG_FILE: .config
