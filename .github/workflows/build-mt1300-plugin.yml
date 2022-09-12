@@ -9,7 +9,7 @@
 # Description: Build OpenWrt using GitHub Actions
 #
 
-name: Build MT1300 Plugin from GL-iNet
+name: Build Hatlab Plugin from GL-iNet
 
 on:
   workflow_dispatch:
@@ -22,7 +22,7 @@ on:
 #    types: started
 
 env:
-  REPO_OP: https://github.com/gl-inet/openwrt.git
+  REPO_OP: https://github.com/DasSecurity-HatLab/openwrt.git
   REPO_LEDE: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: openwrt-19.07.8
   FEEDS_CONF: feeds.conf.default
